@@ -17,17 +17,14 @@ _option_delete = 3
 _option_modify = 4
 _option_quit = 5
 
-
 _options = {}
 
-_options[_option_gross_all] =   "Gross payroll report for all employees"
-_options[_option_gross_one] =   "Gross payroll report for one employee"
-_options[_option_add] =         "Add employee"
-_options[_option_delete] =      "Delete employee"
-_options[_option_modify] =      "Modify employee"
-_options[_option_quit] =        "Quit"
-
-__cont = 'y'
+_options[_option_gross_all] = "Gross payroll report for all employees"
+_options[_option_gross_one] = "Gross payroll report for one employee"
+_options[_option_add] = "Add employee"
+_options[_option_delete] = "Delete employee"
+_options[_option_modify] = "Modify employee"
+_options[_option_quit] = "Quit"
 
 
 class Employee:
@@ -66,10 +63,17 @@ def parse_employee_txt(filepath):
     return emps
 
 
+_optionfns = {}
+
+_optionfns[_option_gross_all] = None
+_optionfns[_option_gross_one] = None
+_optionfns[_option_add] = None
+_optionfns[_option_delete] = None
+_optionfns[_option_modify] = None
+_optionfns[_option_quit] = exit(0)
+
 if __name__ == '__main__':
     employees = parse_employee_txt("./employees.txt")
-
-
 
     for employee in employees:
         print(employee)
@@ -81,8 +85,12 @@ if __name__ == '__main__':
             print("Goodbye!")
             break
 
-        for i in _options:
+        for i in _options:  # display the options
             option = _options[i]
             print(f"{i}) {option}")
 
-        choice = int(input(" > "))
+        choice = int(input(" > "))  # get choice
+        if choice in _optionfns:  # execute choice
+            _optionfns(choice)
+
+    print(__info__)
