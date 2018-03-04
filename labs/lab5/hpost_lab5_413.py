@@ -72,7 +72,17 @@ def sort_by_highest_cost(employees):
 
     return sorted
 
-def employee_by_name(name, employees):
+def print_names(employees):
+    names = [(e.fname + " " + e.lname) for e in employees]
+    names.sort()
+
+    for name in names:
+        print(name)
+
+def employee_by_name(name: str, employees):
+
+    while "  " in name: # flatten down ALL multiple spaces
+        name = name.replace("  ", " ")
 
     try:
         narr = name.split(" ")[0:2]
@@ -85,6 +95,16 @@ def employee_by_name(name, employees):
         e: Employee
         if e.fname == fname and e.lname == lname:
             return e
+
+def delete_employee_object(employees, employee):
+    """
+    Given a list of Employees and an Employee, delete the Employee.
+    """
+    for i in range(len(employees)):
+        if employees[i] is employee:
+            del employees[i]
+            return employee
+
 
 
 def payroll_report(employees):
@@ -177,7 +197,7 @@ def payroll_report_all_employees(employees):
     payroll_report(employees)
 
 def payroll_report_one_employee(employees):
-    n = input("Enter employee name:\n > ")
+    n = input("Enter employee name to view payroll report of:\n > ")
 
     e = employee_by_name(n, employees)
 
@@ -186,13 +206,7 @@ def payroll_report_one_employee(employees):
     else:
         print(f"Name '{n}' not found.")
 
-        names = [(e.fname + " " + e.lname) for e in employees]
-        names.sort()
-
-        print("Possible names:")
-
-        for name in names:
-            print(name)
+        print_names(employees)
 
 def add_employee(employees):
 
@@ -226,13 +240,25 @@ def add_employee(employees):
 
     employees.append(Employee(fname, lname, rate, hours))
 
+def delete_employee(employees):
+
+    n = input("Enter name of employee to delete:\n > ")
+
+    e = employee_by_name(n, employees)
+
+    if e: #if we found an employee by that name
+        delete_employee_object(employees, e) #delete it
+        print(f"Employee '{n}' deleted.")
+    else: #employee not found.
+        print(f"Employee by name '{n}' not found.")
+
 
 _optionfns = {}
 
 _optionfns[_option_gross_all] = payroll_report_all_employees
 _optionfns[_option_gross_one] = payroll_report_one_employee
 _optionfns[_option_add] = add_employee
-_optionfns[_option_delete] = lambda x: print("Not implemented")
+_optionfns[_option_delete] = delete_employee
 _optionfns[_option_modify] = lambda x: print("Not implemented")
 _optionfns[_option_quit] = lambda x: (print(__info__), exit(0))
 
