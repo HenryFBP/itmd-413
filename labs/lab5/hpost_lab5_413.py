@@ -36,7 +36,7 @@ class Employee:
         self.hours = hours
 
     def __str__(self):
-        return f"{self.fname:8s} {self.lname:10s}: ${self.rate:3.02f} at {self.hours:3.02f}h"
+        return f"{self.fname:8s} {self.lname:10s}: ${self.rate:5.02f} at {self.hours:5.02f}h"
 
     def weeklyRate(self):
         return self.rate * self.hours
@@ -194,14 +194,44 @@ def payroll_report_one_employee(employees):
         for name in names:
             print(name)
 
+def add_employee(employees):
 
-    es = []
+    while True:
+        try:
+            fname = input("Enter first name:\n > ")
+            break
+        except Exception as e:
+            print("Invalid first name.")
+
+    while True:
+        try:
+            lname = input("Enter last name:\n > ")
+            break
+        except Exception as e:
+            print("Invalid last name.")
+
+    while True:
+        try:
+            rate = float(input("Enter hourly rate:\n > "))
+            break
+        except Exception as e:
+            print("Invalid hourly rate.")
+
+    while True:
+        try:
+            hours = float(input("Enter hours per week:\n > "))
+            break
+        except Exception as e:
+            print("Invalid hours per week.")
+
+    employees.append(Employee(fname, lname, rate, hours))
+
 
 _optionfns = {}
 
 _optionfns[_option_gross_all] = payroll_report_all_employees
 _optionfns[_option_gross_one] = payroll_report_one_employee
-_optionfns[_option_add] = lambda x: print("Not implemented")
+_optionfns[_option_add] = add_employee
 _optionfns[_option_delete] = lambda x: print("Not implemented")
 _optionfns[_option_modify] = lambda x: print("Not implemented")
 _optionfns[_option_quit] = lambda x: (print(__info__), exit(0))
