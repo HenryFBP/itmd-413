@@ -1,5 +1,5 @@
-from copy import deepcopy
 import time
+from copy import deepcopy
 
 __info__ = \
     f"""
@@ -35,11 +35,73 @@ class Employee:
         self.rate = rate
         self.hours = hours
 
+    def name(self):
+        return self.fname + " " + self.lname
+
     def __str__(self):
         return f"{self.fname:8s} {self.lname:10s}: ${self.rate:5.02f} at {self.hours:5.02f}h"
 
     def weeklyRate(self):
         return self.rate * self.hours
+
+    def modify_first_name(self):
+        while True:
+            try:
+                fn = input("Enter first name:\n > ")
+                self.fname = fn
+                return
+            except Exception as e:
+                print("Invalid first name.")
+
+    def modify_last_name(self):
+        while True:
+            try:
+                ln = input("Enter last name:\n > ")
+                self.lname = ln
+                return
+            except Exception as e:
+                print("Invalid last name.")
+
+    def modify_rate(self):
+        while True:
+            try:
+                r = input("Enter pay-rate (dollars per hour):\n > ")
+                self.rate = float(r)
+                return
+            except Exception as e:
+                print("Invalid rate.")
+
+    def modify_hours(self):
+        while True:
+            try:
+                h = input("Enter hours worked per week:\n > ")
+                self.hours = float(h)
+                return
+            except Exception as e:
+                print("Invalid hours.")
+
+    def modify(self):
+        """Prompt the user to modify this employee object."""
+        print(f"What would you like to modify about '{self.name()}'?")
+
+        choices = {
+            "first name".upper(): self.modify_first_name,
+            "last name".upper(): self.modify_first_name,
+            "rate".upper(): self.modify_rate,
+            "hours".upper(): self.modify_hours,
+        }
+
+        for item, func in choices.items():
+            print(item.lower())
+
+        answer = input(" > ").upper()
+
+        while True:
+            try:
+                return choices[answer]()
+            except Exception as e:
+                print("Invalid choice.")
+                answer = input(" > ")
 
 
 def highest_cost(employees):
@@ -72,6 +134,7 @@ def sort_by_highest_cost(employees):
 
     return sorted
 
+
 def print_names(employees):
     names = [(e.fname + " " + e.lname) for e in employees]
     names.sort()
@@ -79,9 +142,9 @@ def print_names(employees):
     for name in names:
         print(name)
 
-def employee_by_name(name: str, employees):
 
-    while "  " in name: # flatten down ALL multiple spaces
+def employee_by_name(name: str, employees):
+    while "  " in name:  # flatten down ALL multiple spaces
         name = name.replace("  ", " ")
 
     try:
@@ -90,11 +153,11 @@ def employee_by_name(name: str, employees):
     except ValueError as e:
         return None
 
-
     for e in employees:
         e: Employee
         if e.fname == fname and e.lname == lname:
             return e
+
 
 def delete_employee_object(employees, employee):
     """
@@ -104,7 +167,6 @@ def delete_employee_object(employees, employee):
         if employees[i] is employee:
             del employees[i]
             return employee
-
 
 
 def payroll_report(employees):
@@ -193,8 +255,10 @@ def parse_employee_txt(filepath):
 
     return emps
 
+
 def payroll_report_all_employees(employees):
     payroll_report(employees)
+
 
 def payroll_report_one_employee(employees):
     n = input("Enter employee name to view payroll report of:\n > ")
@@ -208,8 +272,8 @@ def payroll_report_one_employee(employees):
 
         print_names(employees)
 
-def add_employee(employees):
 
+def add_employee(employees):
     while True:
         try:
             fname = input("Enter first name:\n > ")
@@ -240,18 +304,27 @@ def add_employee(employees):
 
     employees.append(Employee(fname, lname, rate, hours))
 
-def delete_employee(employees):
 
+def delete_employee(employees):
     n = input("Enter name of employee to delete:\n > ")
 
     e = employee_by_name(n, employees)
 
-    if e: #if we found an employee by that name
-        delete_employee_object(employees, e) #delete it
+    if e:  # if we found an employee by that name
+        delete_employee_object(employees, e)  # delete it
         print(f"Employee '{n}' deleted.")
-    else: #employee not found.
+    else:  # employee not found.
         print(f"Employee by name '{n}' not found.")
 
+def modify_employee(employees):
+    n =  input("Enter name of employee to modify:\n > ")
+
+    e = employee_by_name(n, employees)
+
+    if e:
+        e.modify() #modify self
+    else:
+        print(f"Employee by name '{n}' not found.")
 
 _optionfns = {}
 
@@ -259,7 +332,7 @@ _optionfns[_option_gross_all] = payroll_report_all_employees
 _optionfns[_option_gross_one] = payroll_report_one_employee
 _optionfns[_option_add] = add_employee
 _optionfns[_option_delete] = delete_employee
-_optionfns[_option_modify] = lambda x: print("Not implemented")
+_optionfns[_option_modify] = modify_employee
 _optionfns[_option_quit] = lambda x: (print(__info__), exit(0))
 
 if __name__ == '__main__':
