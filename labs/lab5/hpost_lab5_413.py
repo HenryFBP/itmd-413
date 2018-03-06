@@ -36,7 +36,7 @@ class Employee:
         self.hours = hours
 
     def to_string(self):
-        return " ".join([self.fname, self.lname, self.rate, self.hours])
+        return " ".join([self.fname, self.lname, str(self.rate), str(self.hours)])
 
     def name(self):
         return self.fname + " " + self.lname
@@ -220,6 +220,7 @@ def parse_employee_line(line):
 
     return Employee(fname, lname, float(rate), float(hours))
 
+
 def employees_to_files(employees, path):
     """
     Given a list of Employees, write them to a file at ``path``.
@@ -230,9 +231,10 @@ def employees_to_files(employees, path):
     lines = [e.to_string() for e in employees]
 
     for line in lines:
-        file.write(line)
+        file.write(line + "\n")
 
     file.close()
+
 
 def sprint_center(src, innie):
     """
@@ -332,15 +334,17 @@ def delete_employee(employees):
     else:  # employee not found.
         print(f"Employee by name '{n}' not found.")
 
+
 def modify_employee(employees):
-    n =  input("Enter name of employee to modify:\n > ")
+    n = input("Enter name of employee to modify:\n > ")
 
     e = employee_by_name(n, employees)
 
     if e:
-        e.modify() #modify self
+        e.modify()  # modify self
     else:
         print(f"Employee by name '{n}' not found.")
+
 
 _optionfns = {}
 
@@ -349,7 +353,10 @@ _optionfns[_option_gross_one] = payroll_report_one_employee
 _optionfns[_option_add] = add_employee
 _optionfns[_option_delete] = delete_employee
 _optionfns[_option_modify] = modify_employee
-_optionfns[_option_quit] = lambda x: (print(__info__), exit(0))
+_optionfns[_option_quit] = lambda x: (
+    print(__info__),
+    employees_to_files(x, "out.txt"),
+    exit(0))
 
 if __name__ == '__main__':
 
