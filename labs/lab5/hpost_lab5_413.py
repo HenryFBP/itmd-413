@@ -35,6 +35,9 @@ class Employee:
         self.rate = rate
         self.hours = hours
 
+    def to_string(self):
+        return " ".join([self.fname, self.lname, self.rate, self.hours])
+
     def name(self):
         return self.fname + " " + self.lname
 
@@ -217,6 +220,19 @@ def parse_employee_line(line):
 
     return Employee(fname, lname, float(rate), float(hours))
 
+def employees_to_files(employees, path):
+    """
+    Given a list of Employees, write them to a file at ``path``.
+    """
+    file = open(path, "w+")
+
+    e: Employee
+    lines = [e.to_string() for e in employees]
+
+    for line in lines:
+        file.write(line)
+
+    file.close()
 
 def sprint_center(src, innie):
     """
