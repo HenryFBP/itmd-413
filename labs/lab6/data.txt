@@ -1,0 +1,5 @@
+tom Schulz,a,b,c,d,a,b,c,d,a,a
+Alice brown,a,b,c,d,a,b,c,d,a,b
+Betty sanchez,b,b,c,d,a,b,c,d,a,a
+Sammy Student,c,b,d,d,a,b,c,d,a,a
+Jake jack,a,a,a,a,a,a,a,a,a,a
