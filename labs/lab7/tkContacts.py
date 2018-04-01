@@ -1,70 +1,119 @@
+import os
 from tkinter import *
-from contacts  import *
- 
-def selection () :
-    print ("At %s of %d" % (select.curselection(), len(contactlist)))
-    return int(select.curselection()[0])
 
-def addContact () :
-    contactlist.append ([nameVar.get(), phoneVar.get()])
-    setList ()
+from contacts import *
 
-def updateContact() :
-    contactlist[selection()]=[nameVar.get(), phoneVar.get()]
-    setList ()
+contacts_file = 'contacts.txt'
 
-def deleteContact() :
-    del contactlist[selection()]
-    setList ()
 
-def loadContact  () :
-    name, phone = contactlist[selection()]
-    nameVar.set(name)
-    phoneVar.set(phone)
+class Contacts:
+    def selection(self):
+        print("At %s of %d" % (self.select.curselection(), len(self.contacts)))
+        return int(self.select.curselection()[0])
 
-def buildFrame () :
-    global nameVar, phoneVar, select
-    root = Tk()
+    def addContact(self):
+        self.contacts.append([self.nameVar.get(), self.phoneVar.get()])
+        self.setList()
 
-    frame1 = Frame(root)
-    frame1.pack()
+    def updateContact(self):
+        self.contacts[self.selection()] = [self.nameVar.get(), self.phoneVar.get()]
+        self.setList()
 
-    Label(frame1, text="Name:").grid(row=0, column=0, sticky=W)
-    nameVar = StringVar()
-    name = Entry(frame1, textvariable=nameVar)
-    name.grid(row=0, column=1, sticky=W)
+    def deleteContact(self):
+        del self.contacts[selection()]
+        self.setList()
 
-    Label(frame1, text="Phone:").grid(row=1, column=0, sticky=W)
-    phoneVar= StringVar()
-    phone= Entry(frame1, textvariable=phoneVar)
-    phone.grid(row=1, column=1, sticky=W)
+    def loadContact(self):
+        name, phone = self.contacts[self.selection()]
+        self.nameVar.set(name)
+        self.phoneVar.set(phone)
 
-    frame1 = Frame(root)       # add a row of buttons
-    frame1.pack()
-    btn1 = Button(frame1,text=" Add  ",command=addContact)
-    btn2 = Button(frame1,text="Update",command=updateContact)
-    btn3 = Button(frame1,text="Delete",command=deleteContact)
-    btn4 = Button(frame1,text=" Load ",command=loadContact)
-    btn1.pack(side=LEFT); btn2.pack(side=LEFT)
-    btn3.pack(side=LEFT); btn4.pack(side=LEFT)
+    def __init__(self, contactsList, path):
+        self.contacts = contactsList
+        self.path = path
 
-    frame1 = Frame(root)       # allow for selection of names
-    frame1.pack()
-    scroll = Scrollbar(frame1, orient=VERTICAL)
-    select = Listbox(frame1, yscrollcommand=scroll.set, height=7)
-    scroll.config (command=select.yview)
-    scroll.pack(side=RIGHT, fill=Y)
-    select.pack(side=LEFT,  fill=BOTH)
-    return root
+        self.root = Tk()
 
-def setList () :
-    contactlist.sort()
-    select.delete(0,END)
-    for name,phone in contactlist :
-        select.insert (END, name)
+        self.root.winfo_toplevel().title("My Contact List")
 
-root = buildFrame()
-setList ()
+        self.framebuttons = Frame(self.root)
+        self.framebuttons.pack(fill=BOTH, expand=YES)
 
-root.mainloop()
+        Label(self.framebuttons, text="Name:").grid(row=0, column=0, sticky=N)
+        self.nameVar = StringVar()
+        self.name = Entry(self.framebuttons, textvariable=self.nameVar)
+        self.name.grid(row=0, column=1, sticky=W)
 
+        Label(self.framebuttons, text="Phone:").grid(row=1, column=0, sticky=N)
+        self.phoneVar = StringVar()
+        self.phone = Entry(self.framebuttons, textvariable=self.phoneVar)
+        self.phone.grid(row=1, column=1, sticky=N)
+
+        self.framebuttons = Frame(self.root)  # add a row of buttons
+        self.framebuttons.pack()
+        self.btn1 = Button(self.framebuttons, text=" Add  ", command=self.addContact)
+        self.btn2 = Button(self.framebuttons, text="Update", command=self.updateContact)
+        self.btn3 = Button(self.framebuttons, text="Delete", command=self.deleteContact)
+        self.btn4 = Button(self.framebuttons, text=" Load ", command=self.loadContact)
+        self.btn5 = Button(self.framebuttons, text=" Save ", command=self.setList)
+
+        self.btn1.pack(side=LEFT)
+        self.btn2.pack(side=LEFT)
+        self.btn3.pack(side=LEFT)
+        self.btn4.pack(side=LEFT)
+        self.btn5.pack(side=LEFT)
+
+        self.framebuttons = Frame(self.root)  # allow for selection of names
+        self.framebuttons.pack()
+        self.scroll = Scrollbar(self.framebuttons, orient=VERTICAL)
+        self.select = Listbox(self.framebuttons, yscrollcommand=self.scroll.set, height=7)
+        self.scroll.config(command=self.select.yview)
+        self.scroll.pack(side=RIGHT, fill=Y)
+        self.select.pack(side=LEFT, fill=BOTH)
+
+        self.setList()
+
+    def setList(self):
+        self.contacts.sort()
+        self.select.delete(0, END)
+        for name, phone in self.contacts:
+            self.select.insert(END, name)
+
+        with open(self.path, 'w') as f:
+
+            print("Writing list to file at '" + self.path + "'.")
+
+            for contact in self.contacts:
+                line = ','.join(contact)
+                f.write(line + '\n')
+
+
+def contactFromLine(line: str):
+    lines = line.split(',')
+
+    fname = lines[0]
+    lname = lines[1]
+    pn = lines[2]
+
+    ret = [(fname + ', ' + lname), pn]
+    print(ret)
+    return ret
+
+
+def loadListFromFile(path: str):
+    ret = []
+    with open(path, 'r') as f:
+        for line in f:
+            line = line.replace('\r', '').replace('\n', '')
+            ret.append(contactFromLine(line))
+    return ret
+
+
+if __name__ == '__main__':
+    if os.path.exists(contacts_file):
+        print("'" + contacts_file + "' exists! Loading values from it...")
+        contactlist = loadListFromFile(contacts_file)
+
+    contacts = Contacts(contactlist, contacts_file)
+
+    contacts.root.mainloop()
