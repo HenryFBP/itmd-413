@@ -1,9 +1,10 @@
-import os
 from tkinter import *
 
-from contacts import *
 
-contacts_file = 'contacts.txt'
+class Contact:
+    def __init__(self, name, phone):
+        self.name = name
+        self.phone = phone
 
 
 class Contacts:
@@ -11,8 +12,14 @@ class Contacts:
         print("At %s of %d" % (self.select.curselection(), len(self.contacts)))
         return int(self.select.curselection()[0])
 
+    def getName(self):
+        return self.nameVar.get()
+
+    def getPhone(self):
+        return self.phoneVar.get()
+
     def addContact(self):
-        self.contacts.append([self.nameVar.get(), self.phoneVar.get()])
+        self.contacts.append([self.getName(), self.phoneVar.get()])
         self.setList()
 
     def updateContact(self):
@@ -20,7 +27,7 @@ class Contacts:
         self.setList()
 
     def deleteContact(self):
-        del self.contacts[selection()]
+        del self.contacts[self.selection()]
         self.setList()
 
     def loadContact(self):
@@ -51,17 +58,17 @@ class Contacts:
 
         self.framebuttons = Frame(self.root)  # add a row of buttons
         self.framebuttons.pack()
-        self.btn1 = Button(self.framebuttons, text=" Add  ", command=self.addContact)
-        self.btn2 = Button(self.framebuttons, text="Update", command=self.updateContact)
-        self.btn3 = Button(self.framebuttons, text="Delete", command=self.deleteContact)
-        self.btn4 = Button(self.framebuttons, text=" Load ", command=self.loadContact)
-        self.btn5 = Button(self.framebuttons, text=" Save ", command=self.setList)
+        self.btn_add = Button(self.framebuttons, text=" Add  ", command=self.addContact)
+        self.btn_update = Button(self.framebuttons, text="Update", command=self.updateContact)
+        self.btn_delete = Button(self.framebuttons, text="Delete", command=self.deleteContact)
+        self.btn_load = Button(self.framebuttons, text=" Load ", command=self.loadContact)
+        self.btn_save = Button(self.framebuttons, text=" Save ", command=self.setList)
 
-        self.btn1.pack(side=LEFT)
-        self.btn2.pack(side=LEFT)
-        self.btn3.pack(side=LEFT)
-        self.btn4.pack(side=LEFT)
-        self.btn5.pack(side=LEFT)
+        self.btn_add.pack(side=LEFT)
+        self.btn_update.pack(side=LEFT)
+        self.btn_delete.pack(side=LEFT)
+        self.btn_load.pack(side=LEFT)
+        self.btn_save.pack(side=LEFT)
 
         self.framebuttons = Frame(self.root)  # allow for selection of names
         self.framebuttons.pack()

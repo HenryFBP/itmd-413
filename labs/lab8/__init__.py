@@ -1,3 +1,8 @@
+import os
+
+from labs.lab7.tkContacts import loadListFromFile, Contacts
+
+contacts_file = 'contacts.txt'
 
 if __name__ == '__main__':
 
