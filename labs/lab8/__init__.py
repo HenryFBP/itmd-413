@@ -1,18 +1,10 @@
 import os
 
-from labs.lab8.tkContacts import contact_list_from_path, ContactsGUI, Contact
-from labs.lab8.contacts import contactlistdata
+from labs.lab8.tkContacts import ContactsGUI, Contact, ContactsGUISQLite
 
-contacts_file = 'contacts.txt'
+contacts_file = 'contacts.db'
 
 if __name__ == '__main__':
+    contacts_gui = ContactsGUISQLite(contacts_file)
 
-    if os.path.exists(contacts_file):
-        print("'" + contacts_file + "' exists! Loading values from it...")
-        contactlist = contact_list_from_path(contacts_file)
-    else:
-        print(f"'{contacts_file}' doesn't exist. Using default data.")
-        contactlist = contactlistdata
-    contacts = ContactsGUI(contactlist, contacts_file)
-
-    contacts.root.mainloop()
+    contacts_gui.root.mainloop()

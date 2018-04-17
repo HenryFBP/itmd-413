@@ -1,3 +1,5 @@
+import os
+import sqlite3
 from tkinter import *
 
 
@@ -10,8 +12,10 @@ class Contact:
         phone = lines[-1]  # last
 
         contact = Contact(name, phone)
-        print(contact)
         return contact
+
+    def as_sqlite_values(self):
+        return rf''' '{self.name}', '{self.phone}' '''
 
     def __init__(self, name: str, phone: str):
         name = name.strip()
@@ -24,7 +28,7 @@ class Contact:
         return f"{self.name}, {self.phone}"
 
     def __lt__(self, other):
-        return self.name > other.name
+        return self.name < other.name
 
     def __gt__(self, other):
         return self.name > other.name
@@ -32,6 +36,20 @@ class Contact:
     def __iter__(self):
         yield self.name
         yield self.phone
+
+
+default_contact_list = [
+    ('Siemens, Harper', '323-4149'),
+    ('Smith, Patti', '239-1212'),
+    ('Jackson, Janet', '313-1352'),
+    ('Manfredi, Ralph', '872-2221'),
+    ('Thompson, Bobby', '365-2622'),
+    ('James, Lebron', '457-6223'),
+    ('Ziegler, Zig', '667-1101'),
+    ('Robbins, Tony', '329-2310')
+]
+
+default_contact_list = [Contact(name, phone) for (name, phone) in default_contact_list]
 
 
 class ContactsGUI:
@@ -68,9 +86,9 @@ class ContactsGUI:
         self.nameVar.set(name)
         self.phoneVar.set(phone)
 
-    def __init__(self, contactsList, path):
-        self.contacts = contactsList
+    def __init__(self, path):
         self.path = path
+        self.load_from_disk()
 
         self.root = Tk()
 
@@ -121,7 +139,37 @@ class ContactsGUI:
         for contact in self.contacts:
             self.select.insert(END, contact.name)
 
+        self.save_to_disk()
+
+    def load_default_contacts(self):
+        self.contacts = default_contact_list
+
+    def create_blank_file(self):
+        with open(self.path, 'w') as f:
+            pass
+
+    def create_default_file(self):
+        self.load_default_contacts()
+        self.save_to_disk()
+
+    def save_to_disk(self):
         self.save_to_file()
+
+    def load_from_disk(self):
+        self.load_from_file()
+
+    def load_from_file(self):
+        self.contacts = ContactsGUI.load_from_file_s(self.path)
+
+    @staticmethod
+    def load_from_file_s(path) -> list:
+        ret = []
+        with open(path, 'r') as f:
+            for line in f:
+                line = line.replace('\r', '').replace('\n', '')
+                contact = Contact.from_line(line)
+                ret.append(contact)
+        return ret
 
     def save_to_file(self):
         with open(self.path, 'w') as f:
@@ -132,10 +180,62 @@ class ContactsGUI:
                 f.write(line + '\n')
 
 
-def contact_list_from_path(path: str):
-    ret = []
-    with open(path, 'r') as f:
-        for line in f:
-            line = line.replace('\r', '').replace('\n', '')
-            ret.append(Contact.from_line(line))
-    return ret
+class ContactsGUISQLite(ContactsGUI):
+    contacts_table_name = 'contacts'
+
+    def create_default_tables(self):
+        with sqlite3.connect(self.path) as conn:
+            c = conn.cursor()
+
+            sql = f"""CREATE TABLE {self.contacts_table_name} (
+    contact_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    phone TEXT
+);"""
+
+            print(sql)
+
+            c.execute(sql)
+
+    def save_to_sqlite(self):
+        conn = sqlite3.connect(self.path)
+
+        c = conn.cursor()
+
+        for contact in self.contacts:
+            sql = f'INSERT INTO {self.contacts_table_name} VALUES()'
+
+            print(sql)
+
+            c.execute(sql)
+
+        conn.close()
+
+    def load_from_sqlite(self):
+        path = os.path.abspath(self.path)
+
+        if not os.path.isfile(path):  # create blank file if file DNE
+            print(f"File '{self.path}' DNE. Creating blank file.")
+
+            self.create_blank_file()
+            self.create_default_tables()
+            self.load_default_contacts()
+            self.save_to_disk()
+            return
+
+        print(f"SQLite DB '{self.path}' exists!")
+
+        conn = sqlite3.connect(self.path)
+
+        c = conn.cursor()
+
+        print(conn)
+        print(c)
+
+        conn.close()
+
+    def save_to_disk(self):
+        self.save_to_sqlite()
+
+    def load_from_disk(self):
+        self.load_from_sqlite()
