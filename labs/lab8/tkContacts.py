@@ -204,7 +204,11 @@ class ContactsGUISQLite(ContactsGUI):
         with sqlite3.connect(self.path) as conn:
             c = conn.cursor()
 
-            c.execute(f"DELETE FROM {self.contacts_table_name};")  # delete all
+            sql = f"DELETE FROM {self.contacts_table_name};"
+            print(sql)
+            c.execute(sql)  # delete all
+
+            print(f"Saving to {self.path}!")
 
             for contact in self.contacts:
                 contact: Contact
