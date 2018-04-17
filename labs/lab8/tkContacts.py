@@ -1,5 +1,6 @@
 import os
 import sqlite3
+from pprint import pprint
 from tkinter import *
 
 
@@ -88,6 +89,7 @@ class ContactsGUI:
 
     def __init__(self, path):
         self.path = path
+        self.contacts = []
         self.load_from_disk()
 
         self.root = Tk()
@@ -187,29 +189,32 @@ class ContactsGUISQLite(ContactsGUI):
         with sqlite3.connect(self.path) as conn:
             c = conn.cursor()
 
-            sql = f"""CREATE TABLE {self.contacts_table_name} (
-    contact_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    phone TEXT
-);"""
+            sql = f"CREATE TABLE {self.contacts_table_name} (" \
+                  f"    contact_id INTEGER PRIMARY KEY AUTOINCREMENT," \
+                  f"    name TEXT," \
+                  f"    phone TEXT" \
+                  f");"
 
             print(sql)
 
             c.execute(sql)
 
     def save_to_sqlite(self):
-        conn = sqlite3.connect(self.path)
 
-        c = conn.cursor()
+        with sqlite3.connect(self.path) as conn:
+            c = conn.cursor()
 
-        for contact in self.contacts:
-            sql = f'INSERT INTO {self.contacts_table_name} VALUES()'
+            c.execute(f"DELETE FROM {self.contacts_table_name};")  # delete all
 
-            print(sql)
+            for contact in self.contacts:
+                contact: Contact
+                sql = f'INSERT INTO {self.contacts_table_name}(name, phone) VALUES(' + \
+                      contact.as_sqlite_values() + \
+                      f');'
 
-            c.execute(sql)
+                print(sql)
 
-        conn.close()
+                c.execute(sql)
 
     def load_from_sqlite(self):
         path = os.path.abspath(self.path)
@@ -225,14 +230,20 @@ class ContactsGUISQLite(ContactsGUI):
 
         print(f"SQLite DB '{self.path}' exists!")
 
-        conn = sqlite3.connect(self.path)
+        with sqlite3.connect(self.path) as conn:
+            c = conn.cursor()
 
-        c = conn.cursor()
+            sql = f"SELECT name, phone FROM {self.contacts_table_name};"
+            print(sql)
+            c.execute(sql)
 
-        print(conn)
-        print(c)
+            results = c.fetchall()
+            pprint(results)
 
-        conn.close()
+            for result in results:
+                contact = Contact(result[0], result[1])
+                self.contacts.append(contact)
+
 
     def save_to_disk(self):
         self.save_to_sqlite()
