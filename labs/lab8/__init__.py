@@ -1,6 +1,6 @@
 import os
 
-from labs.lab8.tkContacts import ContactsGUI, Contact, ContactsGUISQLite
+from tkContactsSQLite import ContactsGUISQLite
 
 contacts_file = 'contacts.db'
 
